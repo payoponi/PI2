@@ -1,0 +1,99 @@
+int numBolas = 10;
+float[] bolaX = new float[numBolas];
+float[] bolaY = new float[numBolas];
+float[] bolaVelY = new float[numBolas];
+color[] bolaColor = new color[numBolas];
+boolean[] bolaActiva = new boolean[numBolas];
+
+int puntuacion = 0;
+int cajaSize = 100;
+int cajaEspaciado = 50;
+int cajaY = 400;
+int cajaRojoX, cajaAzulX, cajaVerdeX;
+
+int bolaSeleccionada = -1;
+int tiempoUltimaBola = 0;
+int intervaloBolas = 3000;
+
+void setup() {
+  size(600, 500);
+  int totalAnchoCajas = 3 * cajaSize + 2 * cajaEspaciado;
+  int inicioX = (width - totalAnchoCajas) / 2;
+  cajaRojoX = inicioX;
+  cajaAzulX = cajaRojoX + cajaSize + cajaEspaciado;
+  cajaVerdeX = cajaAzulX + cajaSize + cajaEspaciado;
+  for (int i = 0; i < numBolas; i++) bolaActiva[i] = false;
+}
+
+void draw() {
+  background(255);
+  fill(255, 0, 0);
+  rect(cajaRojoX, cajaY, cajaSize, cajaSize);
+  fill(0, 0, 255);
+  rect(cajaAzulX, cajaY, cajaSize, cajaSize);
+  fill(0, 255, 0);
+  rect(cajaVerdeX, cajaY, cajaSize, cajaSize);
+  if (millis() - tiempoUltimaBola > intervaloBolas) {
+    generarNuevaBola();
+    tiempoUltimaBola = millis();
+  }
+  for (int i = 0; i < numBolas; i++) {
+    if (bolaActiva[i]) {
+      fill(bolaColor[i]);
+      ellipse(bolaX[i], bolaY[i], 30, 30);
+      bolaY[i] += bolaVelY[i];
+      if (bolaY[i] > height) bolaActiva[i] = false;
+    }
+  }
+  fill(0);
+  textSize(20);
+  text("Puntuación: " + puntuacion, 20, 30);
+}
+
+void generarNuevaBola() {
+  for (int i = 0; i < numBolas; i++) {
+    if (!bolaActiva[i]) {
+      int fila = (int) random(2);
+      bolaX[i] = (fila == 0) ? random(cajaRojoX + cajaSize, cajaAzulX) : random(cajaAzulX + cajaSize, cajaVerdeX);
+      bolaY[i] = random(-30, 0);
+      bolaVelY[i] = random(0.5, 1.5);
+      int colorIndex = (int) random(3);
+      bolaColor[i] = (colorIndex == 0) ? color(255, 0, 0) : (colorIndex == 1) ? color(0, 0, 255) : color(0, 255, 0);
+      bolaActiva[i] = true;
+      break;
+    }
+  }
+}
+
+void mousePressed() {
+  for (int i = 0; i < numBolas; i++) {
+    if (bolaActiva[i] && dist(mouseX, mouseY, bolaX[i], bolaY[i]) < 15) {
+      bolaSeleccionada = i;
+      break;
+    }
+  }
+}
+
+void mouseDragged() {
+  if (bolaSeleccionada != -1) {
+    bolaX[bolaSeleccionada] = mouseX;
+    bolaY[bolaSeleccionada] = mouseY;
+  }
+}
+
+void mouseReleased() {
+  if (bolaSeleccionada != -1) {
+    int cajaCorrecta = -1;
+    float r = red(bolaColor[bolaSeleccionada]);
+    float g = green(bolaColor[bolaSeleccionada]);
+    float b = blue(bolaColor[bolaSeleccionada]);
+    if (r == 255 && g == 0 && b == 0) cajaCorrecta = cajaRojoX;
+    else if (r == 0 && g == 0 && b == 255) cajaCorrecta = cajaAzulX;
+    else if (r == 0 && g == 255 && b == 0) cajaCorrecta = cajaVerdeX;
+    if (cajaCorrecta != -1 && bolaX[bolaSeleccionada] > cajaCorrecta && bolaX[bolaSeleccionada] < cajaCorrecta + cajaSize && bolaY[bolaSeleccionada] > cajaY && bolaY[bolaSeleccionada] < cajaY + cajaSize) {
+      puntuacion++;
+      bolaActiva[bolaSeleccionada] = false;
+    }
+    bolaSeleccionada = -1;
+  }
+}
