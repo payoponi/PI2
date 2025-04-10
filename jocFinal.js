@@ -1,4 +1,3 @@
-
 let numBoles = 10;
 let bolaX = new Array(numBoles);
 let bolaY = new Array(numBoles);
@@ -32,6 +31,8 @@ let imgCaixaVermella, imgCaixaBlava, imgCaixaVerda, imgCaixaGroc;
 let imgBolaVermella, imgBolaBlava, imgBolaVerda, imgBolaGroc;
 
 function preload() {
+  fonsDisco = loadImage('disco.jpg');
+  
   imgCaixaVermella = loadImage('bandera-nylon-personalizada.jpg');
   imgCaixaBlava = loadImage('cistellaF.png');
   imgCaixaVerda = loadImage('ferri.png');
@@ -55,7 +56,7 @@ function setup() {
 }
 
 function draw() {
-  background(255);
+  background(fonsDisco);
 
   if (!jocActiu) {
     textSize(32);
@@ -140,7 +141,7 @@ function draw() {
     }
   }
 
-  fill(0);
+  fill(255);
   textSize(20);
   text("Puntuació: " + puntuacio, 20, 30);
   text("Vides: " + vides, 20, 60);
@@ -218,18 +219,20 @@ function keyPressed() {
   if (key === 'k' || key === 'K') teclaKPremuda = true;
 
   if (modeGroc && teclaJPremuda && teclaKPremuda) {
-    for (let i = 0; i < numBoles; i++) {
-      if (bolaActiva[i] && !bolaEnPas[i] && bolaColor[i].toString() === color(255, 255, 0).toString()) {
-        bolaDestiX[i] = posicioCaixaGrocX + midaCaixa / 2;
-        bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
-        bolaEnPas[i] = true;
-        bolaEnCaixa[i] = true;
-        teclaJPremuda = false;
-        teclaKPremuda = false;
-        break;
-      }
+  for (let i = 0; i < numBoles; i++) {
+    if (bolaActiva[i] && !bolaEnPas[i] && bolaColor[i].toString() === color(255, 255, 0).toString()) {
+      bolaDestiX[i] = posicioCaixaGrocX + midaCaixa / 2;
+      bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
+      bolaEnPas[i] = true;
+      bolaEnCaixa[i] = true;
+      puntuacio += 10;  // Suma 10 punts en lloc de 1
+      teclaJPremuda = false;
+      teclaKPremuda = false;
+      break;
     }
   }
+}
+
 
   if (!modeGroc) {
     for (let i = 0; i < numBoles; i++) {
@@ -265,18 +268,6 @@ function keyPressed() {
             bolaDestiY[i] = -10;
             bolaEnPas[i] = true;
             bolaPassada = true;
-          }
-        }
-
-        if (key === 'f' && bolaPassada) {
-          for (let j = 0; j < numBoles; j++) {
-            if (bolaActiva[j] && bolaEnPas[j] && !bolaEnCaixa[j]) {
-              bolaActiva[j] = false;
-              puntuacio += 2;
-              bolaPassada = false;
-              bolaActualEsq = !bolaActualEsq;
-              break;
-            }
           }
         }
       }
