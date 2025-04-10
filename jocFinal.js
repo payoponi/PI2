@@ -1,3 +1,4 @@
+
 let numBoles = 10;
 let bolaX = new Array(numBoles);
 let bolaY = new Array(numBoles);
@@ -10,8 +11,8 @@ let bolaDestiY = new Array(numBoles);
 let bolaEnCaixa = new Array(numBoles).fill(false);
 
 let puntuacio = 0;
-let vides = 3; 
-let jocActiu = true; 
+let vides = 3;
+let jocActiu = true;
 let midaCaixa = 100;
 let espaiCaixa = 50;
 let posicioCaixaY = 400;
@@ -24,8 +25,23 @@ let tempsUltimCanvi = 0;
 let modeGroc = false;
 let teclaJPremuda = false;
 let teclaKPremuda = false;
-let tempsModeGroc = 4000; 
+let tempsModeGroc = 4000;
 let haGeneratBolaGroc = false;
+
+let imgCaixaVermella, imgCaixaBlava, imgCaixaVerda, imgCaixaGroc;
+let imgBolaVermella, imgBolaBlava, imgBolaVerda, imgBolaGroc;
+
+function preload() {
+  imgCaixaVermella = loadImage('bandera-nylon-personalizada.jpg');
+  imgCaixaBlava = loadImage('cistellaF.png');
+  imgCaixaVerda = loadImage('ferri.png');
+  imgCaixaGroc = loadImage('Porteria.png');
+
+  imgBolaVermella = loadImage('golf_ball.png');
+  imgBolaBlava = loadImage('basquet_ball.png');
+  imgBolaVerda = loadImage('rugby_ball.png');
+  imgBolaGroc = loadImage('football_ball.png');
+}
 
 function setup() {
   createCanvas(600, 500);
@@ -35,7 +51,7 @@ function setup() {
   posicioCaixaVermellaX = iniciX;
   posicioCaixaBlavaX = posicioCaixaVermellaX + midaCaixa + espaiCaixa;
   posicioCaixaVerdaX = posicioCaixaBlavaX + midaCaixa + espaiCaixa;
-  posicioCaixaGrocX = width/2 - midaCaixa/2;
+  posicioCaixaGrocX = width / 2 - midaCaixa / 2;
 }
 
 function draw() {
@@ -44,33 +60,25 @@ function draw() {
   if (!jocActiu) {
     textSize(32);
     fill(255, 0, 0);
-    text("Has perdut!!", width/2 - 100, height/2);
+    text("Has perdut!!", width / 2 - 100, height / 2);
     textSize(20);
-    text("Puntuació final: " + puntuacio, width/2 - 80, height/2 + 40);
+    text("Puntuació final: " + puntuacio, width / 2 - 80, height / 2 + 40);
     return;
   }
 
-  // canviar groc cada 20 segundos
   if (millis() - tempsUltimCanvi > 20000 && !modeGroc) {
     iniciarModeGroc();
   }
 
   if (modeGroc) {
-   
-    fill(255, 255, 0);
-    rect(posicioCaixaGrocX, posicioCaixaY, midaCaixa, midaCaixa);
-    
+    image(imgCaixaGroc, posicioCaixaGrocX - 20, posicioCaixaY - 20, midaCaixa + 40, midaCaixa + 40);
     if (millis() - tempsUltimCanvi > tempsModeGroc) {
       finalitzarModeGroc();
     }
   } else {
-    // Modo normal - 3 cajas
-    fill(255, 0, 0);
-    rect(posicioCaixaVermellaX, posicioCaixaY, midaCaixa, midaCaixa);
-    fill(0, 0, 255);
-    rect(posicioCaixaBlavaX, posicioCaixaY, midaCaixa, midaCaixa);
-    fill(0, 255, 0);
-    rect(posicioCaixaVerdaX, posicioCaixaY, midaCaixa, midaCaixa);
+    image(imgCaixaVermella, posicioCaixaVermellaX, posicioCaixaY, midaCaixa, midaCaixa);
+    image(imgCaixaBlava, posicioCaixaBlavaX, posicioCaixaY, midaCaixa, midaCaixa);
+    image(imgCaixaVerda, posicioCaixaVerdaX, posicioCaixaY, midaCaixa, midaCaixa);
   }
 
   if (!hiHaBolaActiva && !modeGroc) {
@@ -83,17 +91,21 @@ function draw() {
 
   for (let i = 0; i < numBoles; i++) {
     if (bolaActiva[i]) {
-      fill(bolaColor[i]);
-      ellipse(bolaX[i], bolaY[i], 30, 30);
-      
-      // Animació 
+      let img = getBolaImg(bolaColor[i]);
+      if (img) {
+        image(img, bolaX[i] - 15, bolaY[i] - 15, 30, 30);
+      } else {
+        fill(bolaColor[i]);
+        ellipse(bolaX[i], bolaY[i], 30, 30);
+      }
+
       if (bolaEnPas[i]) {
         let easing = 0.2;
         let dx = bolaDestiX[i] - bolaX[i];
         let dy = bolaDestiY[i] - bolaY[i];
         bolaX[i] += dx * easing;
         bolaY[i] += dy * easing;
-        
+
         if (abs(dx) < 1 && abs(dy) < 1) {
           if (bolaEnCaixa[i]) {
             bolaActiva[i] = false;
@@ -112,7 +124,7 @@ function draw() {
       } else {
         bolaY[i] += bolaVelY[i];
       }
-      
+
       hiHaBolaActiva = true;
 
       if (bolaY[i] > height) {
@@ -132,20 +144,22 @@ function draw() {
   textSize(20);
   text("Puntuació: " + puntuacio, 20, 30);
   text("Vides: " + vides, 20, 60);
-  
-  
-  if (modeGroc) {
-    let tempsRestant = ceil((tempsModeGroc - (millis() - tempsUltimCanvi))/1000);
-    fill(0);
-    textSize(16);
-  }
+}
+
+function getBolaImg(col) {
+  let r = red(col), g = green(col), b = blue(col);
+  if (r === 255 && g === 255 && b === 0) return imgBolaGroc;
+  if (r === 255 && g === 0 && b === 0) return imgBolaVermella;
+  if (r === 0 && g === 0 && b === 255) return imgBolaBlava;
+  if (r === 0 && g === 255 && b === 0) return imgBolaVerda;
+  return null;
 }
 
 function iniciarModeGroc() {
   modeGroc = true;
   tempsUltimCanvi = millis();
   haGeneratBolaGroc = false;
-  
+
   for (let i = 0; i < numBoles; i++) {
     bolaActiva[i] = false;
   }
@@ -162,7 +176,7 @@ function finalitzarModeGroc() {
 function generarBolaGroc() {
   for (let i = 0; i < numBoles; i++) {
     if (!bolaActiva[i]) {
-      bolaX[i] = width/2;
+      bolaX[i] = width / 2;
       bolaY[i] = random(-30, 0);
       bolaVelY[i] = random(1.5, 3.0);
       bolaColor[i] = color(255, 255, 0);
@@ -179,14 +193,14 @@ function generarBolaGroc() {
 function generarNovaBola() {
   for (let i = 0; i < numBoles; i++) {
     if (!bolaActiva[i]) {
-      bolaX[i] = bolaActualEsq ? 
-        random(posicioCaixaVermellaX + midaCaixa, posicioCaixaBlavaX) : 
+      bolaX[i] = bolaActualEsq ?
+        random(posicioCaixaVermellaX + midaCaixa, posicioCaixaBlavaX) :
         random(posicioCaixaBlavaX + midaCaixa, posicioCaixaVerdaX);
       bolaY[i] = random(-30, 0);
       bolaVelY[i] = random(1.5, 3.0);
       let colorIndex = int(random(3));
-      bolaColor[i] = colorIndex === 0 ? color(255, 0, 0) : 
-                     colorIndex === 1 ? color(0, 0, 255) : 
+      bolaColor[i] = colorIndex === 0 ? color(255, 0, 0) :
+                     colorIndex === 1 ? color(0, 0, 255) :
                      color(0, 255, 0);
       bolaActiva[i] = true;
       hiHaBolaActiva = true;
@@ -199,15 +213,10 @@ function generarNovaBola() {
 
 function keyPressed() {
   if (!jocActiu) return;
-  
-  // Verificar teclas J y K para bola amarilla
-  if (key === 'j' || key === 'J') {
-    teclaJPremuda = true;
-  }
-  if (key === 'k' || key === 'K') {
-    teclaKPremuda = true;
-  }
-  
+
+  if (key === 'j' || key === 'J') teclaJPremuda = true;
+  if (key === 'k' || key === 'K') teclaKPremuda = true;
+
   if (modeGroc && teclaJPremuda && teclaKPremuda) {
     for (let i = 0; i < numBoles; i++) {
       if (bolaActiva[i] && !bolaEnPas[i] && bolaColor[i].toString() === color(255, 255, 0).toString()) {
@@ -221,7 +230,7 @@ function keyPressed() {
       }
     }
   }
-  
+
   if (!modeGroc) {
     for (let i = 0; i < numBoles; i++) {
       if (bolaActiva[i] && !bolaEnPas[i]) {
@@ -229,19 +238,16 @@ function keyPressed() {
         let g = green(bolaColor[i]);
         let b = blue(bolaColor[i]);
 
-        if ((key === 'a' && r > 200 && bolaX[i] < posicioCaixaBlavaX) ||  
-            (key === 's' && b > 200 && bolaX[i] < posicioCaixaBlavaX) ||  
-            (key === 'ArrowRight' && g > 200 && bolaX[i] >= posicioCaixaBlavaX) ||  
-            (key === 'ArrowLeft' && b > 200 && bolaX[i] >= posicioCaixaBlavaX)) {  
-          
-          if (key === 'a') {
-            bolaDestiX[i] = posicioCaixaVermellaX + midaCaixa / 2;
-          } else if (key === 's' || key === 'ArrowLeft') {
-            bolaDestiX[i] = posicioCaixaBlavaX + midaCaixa / 2;
-          } else if (key === 'ArrowRight') {
-            bolaDestiX[i] = posicioCaixaVerdaX + midaCaixa / 2;
-          }
-          
+        if ((key === 'a' && r > 200 && bolaX[i] < posicioCaixaBlavaX) ||
+            (key === 's' && b > 200 && bolaX[i] < posicioCaixaBlavaX) ||
+            (key === 'ArrowRight' && g > 200 && bolaX[i] >= posicioCaixaBlavaX) ||
+            (key === 'ArrowLeft' && b > 200 && bolaX[i] >= posicioCaixaBlavaX)) {
+
+          bolaDestiX[i] =
+            key === 'a' ? posicioCaixaVermellaX + midaCaixa / 2 :
+            key === 's' || key === 'ArrowLeft' ? posicioCaixaBlavaX + midaCaixa / 2 :
+            posicioCaixaVerdaX + midaCaixa / 2;
+
           bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
           bolaEnPas[i] = true;
           bolaEnCaixa[i] = true;
@@ -249,13 +255,13 @@ function keyPressed() {
         }
 
         if (key === 'g') {
-          if (g > 200 && bolaX[i] < posicioCaixaBlavaX) {  
-            bolaDestiX[i] = posicioCaixaVerdaX + midaCaixa / 2;
+          if (g > 200 && bolaX[i] < posicioCaixaBlavaX) {
+            bolaDestiX[i] = random(posicioCaixaBlavaX + midaCaixa, posicioCaixaVerdaX);
             bolaDestiY[i] = -10;
             bolaEnPas[i] = true;
             bolaPassada = true;
-          } else if (r > 200 && bolaX[i] >= posicioCaixaBlavaX) {  
-            bolaDestiX[i] = posicioCaixaVermellaX + midaCaixa / 2;
+          } else if (r > 200 && bolaX[i] >= posicioCaixaBlavaX) {
+            bolaDestiX[i] = random(posicioCaixaVermellaX + midaCaixa, posicioCaixaBlavaX);
             bolaDestiY[i] = -10;
             bolaEnPas[i] = true;
             bolaPassada = true;
@@ -279,10 +285,6 @@ function keyPressed() {
 }
 
 function keyReleased() {
-  if (key === 'j' || key === 'J') {
-    teclaJPremuda = false;
-  }
-  if (key === 'k' || key === 'K') {
-    teclaKPremuda = false;
-  }
+  if (key === 'j' || key === 'J') teclaJPremuda = false;
+  if (key === 'k' || key === 'K') teclaKPremuda = false;
 }
