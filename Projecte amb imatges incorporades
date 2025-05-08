@@ -1,4 +1,3 @@
-
 let numBoles = 10;
 let bolaX = new Array(numBoles);
 let bolaY = new Array(numBoles);
@@ -54,6 +53,7 @@ function setup() {
   posicioCaixaBlavaX = posicioCaixaVermellaX + midaCaixa + espaiCaixa;
   posicioCaixaVerdaX = posicioCaixaBlavaX + midaCaixa + espaiCaixa;
   posicioCaixaGrocX = width / 2 - midaCaixa / 2;
+  posicioCaixaY = 50; // Porteria a dalt
 }
 
 function draw() {
@@ -78,9 +78,9 @@ function draw() {
       finalitzarModeGroc();
     }
   } else {
-    image(imgCaixaVermella, posicioCaixaVermellaX, posicioCaixaY, midaCaixa, midaCaixa);
-    image(imgCaixaBlava, posicioCaixaBlavaX, posicioCaixaY, midaCaixa, midaCaixa);
-    image(imgCaixaVerda, posicioCaixaVerdaX, posicioCaixaY, midaCaixa, midaCaixa);
+    image(imgCaixaVermella, posicioCaixaVermellaX, 400, midaCaixa, midaCaixa);
+    image(imgCaixaBlava, posicioCaixaBlavaX, 400, midaCaixa, midaCaixa);
+    image(imgCaixaVerda, posicioCaixaVerdaX, 400, midaCaixa, midaCaixa);
   }
 
   if (!hiHaBolaActiva && !modeGroc) {
@@ -124,16 +124,24 @@ function draw() {
           }
         }
       } else {
-        bolaY[i] += bolaVelY[i];
+        if (bolaColor[i].toString() === color(255, 255, 0).toString()) {
+          bolaX[i] -= 3; // Moviment esquerra per pilota groga
+          if (bolaX[i] < 0) { // Si surt per esquerra
+            bolaActiva[i] = false;
+            vides--;
+            if (vides <= 0) jocActiu = false;
+            finalitzarModeGroc();
+          }
+        } else {
+          bolaY[i] += bolaVelY[i]; // Moviment normal (caiguda)
+        }
       }
 
       hiHaBolaActiva = true;
 
-      if (bolaY[i] > height) {
+      if (bolaY[i] > height && !modeGroc) {
         bolaActiva[i] = false;
-        if (!modeGroc) {
-          bolaActualEsq = !bolaActualEsq;
-        }
+        bolaActualEsq = !bolaActualEsq;
         vides--;
         if (vides <= 0) {
           jocActiu = false;
@@ -178,9 +186,9 @@ function finalitzarModeGroc() {
 function generarBolaGroc() {
   for (let i = 0; i < numBoles; i++) {
     if (!bolaActiva[i]) {
-      bolaX[i] = width / 2;
-      bolaY[i] = random(-30, 0);
-      bolaVelY[i] = random(1.5, 3.0);
+      bolaX[i] = width;
+      bolaY[i] = height - 30;
+      bolaVelY[i] = 0;
       bolaColor[i] = color(255, 255, 0);
       bolaActiva[i] = true;
       hiHaBolaActiva = true;
@@ -220,20 +228,19 @@ function keyPressed() {
   if (key === 'k' || key === 'K') teclaKPremuda = true;
 
   if (modeGroc && teclaJPremuda && teclaKPremuda) {
-  for (let i = 0; i < numBoles; i++) {
-    if (bolaActiva[i] && !bolaEnPas[i] && bolaColor[i].toString() === color(255, 255, 0).toString()) {
-      bolaDestiX[i] = posicioCaixaGrocX + midaCaixa / 2;
-      bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
-      bolaEnPas[i] = true;
-      bolaEnCaixa[i] = true;
-      puntuacio += 10;
-      teclaJPremuda = false;
-      teclaKPremuda = false;
-      break;
+    for (let i = 0; i < numBoles; i++) {
+      if (bolaActiva[i] && !bolaEnPas[i] && bolaColor[i].toString() === color(255, 255, 0).toString()) {
+        bolaDestiX[i] = posicioCaixaGrocX + midaCaixa / 2;
+        bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
+        bolaEnPas[i] = true;
+        bolaEnCaixa[i] = true;
+        puntuacio += 10;
+        teclaJPremuda = false;
+        teclaKPremuda = false;
+        break;
+      }
     }
   }
-}
-
 
   if (!modeGroc) {
     for (let i = 0; i < numBoles; i++) {
@@ -252,7 +259,7 @@ function keyPressed() {
             key === 's' || key === 'ArrowLeft' ? posicioCaixaBlavaX + midaCaixa / 2 :
             posicioCaixaVerdaX + midaCaixa / 2;
 
-          bolaDestiY[i] = posicioCaixaY + midaCaixa / 2;
+          bolaDestiY[i] = 400 + midaCaixa / 2;
           bolaEnPas[i] = true;
           bolaEnCaixa[i] = true;
           break;
