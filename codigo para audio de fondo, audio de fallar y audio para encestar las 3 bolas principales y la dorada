@@ -1,10 +1,12 @@
-let tirin, miss, musica;
+let tirin, bolaAmarilla, miss, musica, gameOver;
 let juegoActivo = false;
 
 function preload() {
   tirin = loadSound('tirin.mp3');
+  bolaAmarilla = loadSound('bola_amarilla.mp3');
   miss = loadSound('miss.mp3');
   musica = loadSound('musica.mp3');
+  gameOver = loadSound('game_over.mp3');
 }
 
 function setup() {
@@ -33,10 +35,11 @@ function iniciarPartida() {
   }
 }
 
-// Termina la partida y para la música
+// Termina la partida, para la música y suena game over
 function terminarPartida() {
   juegoActivo = false;
   musica.stop();
+  gameOver.play();
 }
 
 // Llama a esta función cuando una bola entra correctamente
@@ -44,7 +47,7 @@ function bolaEncestada(colorBola) {
   if (colorBola === 'red' || colorBola === 'green' || colorBola === 'blue') {
     tirin.play();
   } else if (colorBola === 'yellow') {
-    miss.play();
+    bolaAmarilla.play();
   }
 }
 
