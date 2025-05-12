@@ -1,4 +1,4 @@
-let tirin, bolaAmarilla, miss, musica, gameOver;
+let tirin, bolaAmarilla, miss, musica, gameOver, musicaMenu;
 let juegoActivo = false;
 
 function preload() {
@@ -7,42 +7,45 @@ function preload() {
   miss = loadSound('miss.mp3');
   musica = loadSound('musica.mp3');
   gameOver = loadSound('game_over.mp3');
+  musicaMenu = loadSound('musica_menu.mp3');
 }
 
 function setup() {
   createCanvas(800, 600);
-  iniciarPartida();
+  reproducirMusicaMenu();
 }
 
 function draw() {
   background(220);
   
   if (juegoActivo) {
-    // Aquí va tu código del juego (movimiento, colisiones, etc.)
+  
   } else {
-    // Pantalla final (puedes personalizar esto)
     textSize(32);
     textAlign(CENTER, CENTER);
     text('Partida terminada', width / 2, height / 2);
   }
 }
 
-// Inicia la partida y la música
 function iniciarPartida() {
   juegoActivo = true;
+  
+  if (musicaMenu.isPlaying()) {
+    musicaMenu.stop();
+  }
+  
   if (!musica.isPlaying()) {
     musica.loop();
   }
 }
 
-// Termina la partida, para la música y suena game over
 function terminarPartida() {
   juegoActivo = false;
   musica.stop();
   gameOver.play();
+  reproducirMusicaMenu();
 }
 
-// Llama a esta función cuando una bola entra correctamente
 function bolaEncestada(colorBola) {
   if (colorBola === 'red' || colorBola === 'green' || colorBola === 'blue') {
     tirin.play();
@@ -51,7 +54,12 @@ function bolaEncestada(colorBola) {
   }
 }
 
-// Llama a esta función cuando se falla una bola
 function bolaFallada() {
   miss.play();
+}
+
+function reproducirMusicaMenu() {
+  if (!musicaMenu.isPlaying()) {
+    musicaMenu.loop();
+  }
 }
