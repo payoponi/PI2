@@ -1,0 +1,37 @@
+const int botonJ1_Xutar = 2;
+const int botonJ1_Passar = 3;
+const int botonJ1_Colocar1 = 4;
+const int botonJ1_Colocar2 = 5;
+
+const int botonJ2_Xutar = 6;
+const int botonJ2_Passar = 7;
+const int botonJ2_Colocar1 = 8;
+const int botonJ2_Colocar2 = 9;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(botonJ1_Xutar, INPUT_PULLUP);
+  pinMode(botonJ1_Passar, INPUT_PULLUP);
+  pinMode(botonJ1_Colocar1, INPUT_PULLUP);
+  pinMode(botonJ1_Colocar2, INPUT_PULLUP);
+
+  pinMode(botonJ2_Xutar, INPUT_PULLUP);
+  pinMode(botonJ2_Passar, INPUT_PULLUP);
+  pinMode(botonJ2_Colocar1, INPUT_PULLUP);
+  pinMode(botonJ2_Colocar2, INPUT_PULLUP);
+}
+
+void loop() {
+  if (digitalRead(botonJ1_Xutar) == LOW) Serial.println('J');
+  if (digitalRead(botonJ1_Passar) == LOW) Serial.println('T');
+  if (digitalRead(botonJ1_Colocar1) == LOW) Serial.println('A');
+  if (digitalRead(botonJ1_Colocar2) == LOW) Serial.println('S');
+
+  if (digitalRead(botonJ2_Xutar) == LOW) Serial.println('K');
+  if (digitalRead(botonJ2_Passar) == LOW) Serial.println('G');
+  if (digitalRead(botonJ2_Colocar1) == LOW) Serial.println('<');  // Fletxa esquerra
+  if (digitalRead(botonJ2_Colocar2) == LOW) Serial.println('>');  // Fletxa dreta
+
+  delay(100); // Debounce simple
+}
