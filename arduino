@@ -1,3 +1,5 @@
+#include <Keyboard.h>
+
 const int botonJ1_Xutar = 2;
 const int botonJ1_Passar = 3;
 const int botonJ1_Colocar1 = 4;
@@ -8,8 +10,11 @@ const int botonJ2_Passar = 7;
 const int botonJ2_Colocar1 = 8;
 const int botonJ2_Colocar2 = 9;
 
+// Per guardar l'estat anterior de cada botó (per evitar múltiples pulsacions)
+bool estatAnterior[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
+
 void setup() {
-  Serial.begin(9600);
+  Keyboard.begin();
 
   pinMode(botonJ1_Xutar, INPUT_PULLUP);
   pinMode(botonJ1_Passar, INPUT_PULLUP);
@@ -23,15 +28,27 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(botonJ1_Xutar) == LOW) Serial.println('J');
-  if (digitalRead(botonJ1_Passar) == LOW) Serial.println('T');
-  if (digitalRead(botonJ1_Colocar1) == LOW) Serial.println('A');
-  if (digitalRead(botonJ1_Colocar2) == LOW) Serial.println('S');
+  int botons[] = {
+    botonJ1_Xutar, botonJ1_Passar, botonJ1_Colocar1, botonJ1_Colocar2,
+    botonJ2_Xutar, botonJ2_Passar, botonJ2_Colocar1, botonJ2_Colocar2
+  };
 
-  if (digitalRead(botonJ2_Xutar) == LOW) Serial.println('K');
-  if (digitalRead(botonJ2_Passar) == LOW) Serial.println('G');
-  if (digitalRead(botonJ2_Colocar1) == LOW) Serial.println('<');  // Fletxa esquerra
-  if (digitalRead(botonJ2_Colocar2) == LOW) Serial.println('>');  // Fletxa dreta
+  char tecles[] = {
+    'j', 't', 'a', 's',  // Jugador 1
+    'k', 'g', '<', '>'   // Jugador 2
+  };
 
-  delay(100); // Debounce simple
+  for (int i = 0; i < 8; i++) {
+    bool estatActual = digitalRead(botons[i]);
+
+    if (estatActual == LOW && estatAnterior[i] == HIGH) {
+      Keyboard.press(tecles[i]);
+      delay(10);
+      Keyboard.release(tecles[i]);
+    }
+
+    estatAnterior[i] = estatActual;
+  }
+
+  delay(50);  // Petita pausa per evitar rebots i repeticions
 }
